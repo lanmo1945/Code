@@ -1,11 +1,11 @@
 <?php
 /**
- * @name   MoneyConvert.php
+ * @name   NumberConverter.php
  * @time   2017/12/19 21:39
  * @author Tony Lewis
  * @desc   把数字转换为中文大写(使用bc_math库，适用于整数，负数，小数，大数字也适用)
  */
-class MoneyConvert
+class NumberConverter
 {
     /**
      * @var array $_unitMap 单位列表(在先除后取余时，依次从大到小进行)
@@ -140,8 +140,8 @@ class MoneyConvert
 }
 
 //---Test
-echo MoneyConvert::convert('1234567890') . PHP_EOL;
-echo MoneyConvert::convert('1030560890') . PHP_EOL;
-echo MoneyConvert::convert('1010160101') . PHP_EOL;
-echo MoneyConvert::convert('-1010160101.0101') . PHP_EOL;
-echo MoneyConvert::convert('-0.0101') . PHP_EOL;
+echo NumberConverter::convert('1234567890') . PHP_EOL;
+echo NumberConverter::convert('1030560890') . PHP_EOL;
+echo NumberConverter::convert('1010160101') . PHP_EOL;
+echo NumberConverter::convert('-1010160101.0101') . PHP_EOL;
+echo NumberConverter::convert('-0.0101') . PHP_EOL;
