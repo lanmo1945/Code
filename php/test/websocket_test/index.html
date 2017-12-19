@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<script>
+		var wsServer = 'ws://127.0.0.1:8080';
+		var ws = WebSocket(wsServer);
+		ws.onmessage = function(e) {
+			console.log(e);
+		};
+		
+		function init_websocket()
+		{
+
+		}
+	</script>
+</body>
+</html>
