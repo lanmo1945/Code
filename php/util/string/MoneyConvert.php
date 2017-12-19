@@ -67,7 +67,7 @@ class MoneyConvert
 
         //---转换整数部分
         $numPart = explode('.', $number);
-        $result .= self::_convertSub($numPart[0]);
+        $result .= self::_convertInteger($numPart[0]);
 
         //---转换小数部分
         if(count($numPart) > 1 && false == empty($numPart[1]) && 1 == bccomp($numPart[1], '0'))
@@ -101,7 +101,7 @@ class MoneyConvert
      * @param $number string 输入数字
      * @return string
      */
-    private static function _convertSub($number)
+    private static function _convertInteger($number)
     {
         //---如果为0则返回零
         if(0 == bccomp($number, '0'))
@@ -131,7 +131,7 @@ class MoneyConvert
             }
 
             //---如果$n > 10，则对$n做递归分解和拼接
-            $result .= self::_convertSub($n) . $title;
+            $result .= self::_convertInteger($n) . $title;
         }
 
         //---掐头去尾，去掉两边的多余'零'字符
