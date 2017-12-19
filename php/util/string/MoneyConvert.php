@@ -3,7 +3,7 @@
  * @name   MoneyConvert.php
  * @time   2017/12/19 21:39
  * @author Tony Lewis
- * @desc   把数字转换为中文大写(使用bc_math库，大数字也适用)
+ * @desc   把数字转换为中文大写(使用bc_math库，适用于整数，负数，小数，大数字也适用)
  */
 class MoneyConvert
 {
