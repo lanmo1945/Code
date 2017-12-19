@@ -1,14 +1,14 @@
 <?php
 /**
  * @name   MoneyConvert.php
- * @time   2017/12/19 11:09
+ * @time   2017/12/19 21:39
  * @author Tony Lewis
- * @desc
+ * @desc   把数字转换为中文大写(使用bc_math库，大数字也适用)
  */
 class MoneyConvert
 {
     /**
-     * @var array $_unitMap
+     * @var array $_unitMap 单位列表(在先除后取余时，依次从大到小进行)
      */
     private static $_unitMap = array(
         '1000000000000' => '兆',
@@ -21,7 +21,7 @@ class MoneyConvert
     );
 
     /**
-     * @var array $_numberMap
+     * @var array $_numberMap 数字列表(在先除后取余时，依次从大到小进行)
      */
     private static $_numberMap = array(
         '9' => '玖',
@@ -37,91 +37,109 @@ class MoneyConvert
     );
 
     /**
-     * @desc  convert
-     * @param $money
+     * @desc  转换函数
+     * @param $number string 输入数字
      * @return string
      */
-    public static function convert($money)
+    public static function convert($number)
     {
-        $money = strval($money);
+        $number = strval($number);
 
-        //---数字匹配（正数，负数，小数）
-        if(1 !== preg_match('/^-?(\d+|[1-9]\d+)(\.(\d+)?[1-9])?$/i', $money))
+        //---数字校验（正数，负数，小数）
+        if(1 !== preg_match('/^-?(\d+|[1-9]\d+)(\.(\d+)?[1-9])?$/i', $number))
         {
             return '';
         }
-        if(0 == bccomp($money, '0'))
+
+        //---如果为0的话直接返回零
+        if(0 == bccomp($number, '0'))
         {
             return self::$_numberMap[0];
         }
-
         $result = '';
-        if(0 === strpos($money, '-'))
+
+        //---如果带负号，添加负并去除数字的负号
+        if(0 === strpos($number, '-'))
         {
             $result .= '负';
-            $money = ltrim($money, '-');
+            $number = ltrim($number, '-');
         }
-        $numPart = explode('.', $money);
+
+        //---转换整数部分
+        $numPart = explode('.', $number);
         $result .= self::_convertSub($numPart[0]);
+
+        //---转换小数部分
         if(count($numPart) > 1 && false == empty($numPart[1]) && 1 == bccomp($numPart[1], '0'))
         {
             $result .= '点' . self::_convertDecimal($numPart[1]);
         }
+
+        //---解决中文环境下乱码(本文件为utf-8)
+        $result = mb_convert_encoding($result, 'gbk');
         return $result;
     }
 
     /**
-     * @desc  _convertDecimal
-     * @param $money
+     * @desc  小数转换
+     * @param $number string 输入数字
      * @return string
      */
-    private static function _convertDecimal($money)
+    private static function _convertDecimal($number)
     {
-        $money = rtrim($money, '0');
+        $number = rtrim($number, '0');
         $result = '';
-        for($i = 0, $len = strlen($money); $i < $len; $i++)
+        for($i = 0, $len = strlen($number); $i < $len; $i++)
         {
-            $result .= self::$_numberMap[$money{$i}];
+            $result .= self::$_numberMap[$number{$i}];
         }
         return $result;
     }
 
     /**
-     * @desc  _convertSub
-     * @param $money
+     * @desc  整数转换
+     * @param $number string 输入数字
      * @return string
      */
-    private static function _convertSub($money)
+    private static function _convertSub($number)
     {
-        if(0 == bccomp($money, '0'))
+        //---如果为0则返回零
+        if(0 == bccomp($number, '0'))
         {
             return self::$_numberMap[0];
         }
 
         $result = '';
-        foreach(self::$_unitMap as $n => $t)
+        foreach(self::$_unitMap as $unit => $title)
         {
-            $d = bcdiv($money, $n);
-            $money = bcmod($money, $n);
-            if(0 == bccomp($d, '0'))
+            //---先做除法得出单位倍数(例如：100000 = 10 * 10000)，原数字则对单位取出余数
+            $n = bcdiv($number, $unit);
+            $number = bcmod($number, $unit);
+
+            //---如果倍数为0，拼接零
+            if(0 == bccomp($n, '0'))
             {
-                $result .= self::$_numberMap[$d];
+                $result .= self::$_numberMap['0'];
                 continue;
             }
 
-            if($d < 10)
+            //---如果倍数为0 < $n < 10，则返回对应大写数字和单位(例如：玖万)
+            if($n < 10)
             {
-                $result .= self::$_numberMap[$d] . $t;
+                $result .= self::$_numberMap[$n] . $title;
                 continue;
             }
-            $result .= self::_convertSub($d) . $t;
+
+            //---如果$n > 10，则对$n做递归分解和拼接
+            $result .= self::_convertSub($n) . $title;
         }
 
-        //---零：掐头去尾
-        return trim($result, self::$_numberMap[0]);
+        //---掐头去尾，去掉两边的多余'零'字符
+        return trim($result, self::$_numberMap['0']);
     }
 }
 
+//---Test
 echo MoneyConvert::convert('1234567890') . PHP_EOL;
 echo MoneyConvert::convert('1030560890') . PHP_EOL;
 echo MoneyConvert::convert('1010160101') . PHP_EOL;
