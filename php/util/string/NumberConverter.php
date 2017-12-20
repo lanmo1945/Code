@@ -183,7 +183,7 @@ class NumberConverter
     }
 }
 
-//---Test
+//---Test case
 //NumberConverter::setFlag(NumberConverter::FLAG_NO_ZERO | NumberConverter::FLAG_IS_GBK);
 //NumberConverter::setFlag(NumberConverter::FLAG_NO_ZERO);
 
